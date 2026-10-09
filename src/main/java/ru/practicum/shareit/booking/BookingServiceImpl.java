@@ -111,6 +111,15 @@ public class BookingServiceImpl implements BookingService {
     }
 
     private void validateDates(NewBookingDto dto) {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime tolerance = now.minusSeconds(5);
+
+        if (dto.getStart().isBefore(tolerance)) {
+            throw new ValidationException("Дата начала бронирования должна быть в будущем");
+        }
+        if (dto.getEnd().isBefore(tolerance)) {
+            throw new ValidationException("Дата окончания бронирования должна быть в будущем");
+        }
         if (!dto.getEnd().isAfter(dto.getStart())) {
             throw new ValidationException("Окончание бронирования должно быть позже начала");
         }
