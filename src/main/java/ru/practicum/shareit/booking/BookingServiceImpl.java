@@ -28,10 +28,6 @@ public class BookingServiceImpl implements BookingService {
     public BookingDto create(long userId, NewBookingDto dto) {
         User booker = getUser(userId);
         validateDates(dto);
-        if (dto.getItemId() == null) {
-            throw new ValidationException("Не указана вещь для бронирования");
-        }
-
         Item item = itemRepository.findById(dto.getItemId())
                 .orElseThrow(() -> new NotFoundException("Вещь с id=" + dto.getItemId() + " не найдена"));
 
@@ -56,6 +52,9 @@ public class BookingServiceImpl implements BookingService {
     @Transactional
     public BookingDto approve(long userId, long bookingId, boolean approved) {
         Booking booking = getBooking(bookingId);
+        if (!userRepository.existsById(userId)) {
+            throw new ValidationException("Пользователь с id=" + userId + " не найден");
+        }
         if (!booking.getItem().getOwner().getId().equals(userId)) {
             throw new ValidationException("Подтвердить бронирование может только владелец вещи");
         }
@@ -112,13 +111,6 @@ public class BookingServiceImpl implements BookingService {
     }
 
     private void validateDates(NewBookingDto dto) {
-        if (dto.getStart() == null || dto.getEnd() == null) {
-            throw new ValidationException("Необходимо указать даты бронирования");
-        }
-        LocalDateTime now = LocalDateTime.now();
-        if (!dto.getStart().isAfter(now)) {
-            throw new ValidationException("Начало бронирования должно быть в будущем");
-        }
         if (!dto.getEnd().isAfter(dto.getStart())) {
             throw new ValidationException("Окончание бронирования должно быть позже начала");
         }

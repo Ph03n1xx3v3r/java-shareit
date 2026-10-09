@@ -10,10 +10,15 @@ import java.util.List;
 public interface ItemRepository extends JpaRepository<Item, Long> {
     List<Item> findAllByOwnerIdOrderByIdAsc(Long ownerId);
 
-    @Query("select i from Item i " +
-            "where i.available = true and " +
-            "(lower(i.name) like lower(concat('%', :text, '%')) " +
-            "or lower(i.description) like lower(concat('%', :text, '%'))) " +
-            "order by i.id")
+    @Query("""
+            select i
+            from Item i
+            where i.available = true
+              and (
+                  lower(i.name) like lower(concat('%', :text, '%'))
+                  or lower(i.description) like lower(concat('%', :text, '%'))
+              )
+            order by i.id
+            """)
     List<Item> searchAvailable(@Param("text") String text);
 }
