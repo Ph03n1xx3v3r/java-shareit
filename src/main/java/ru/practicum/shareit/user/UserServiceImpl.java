@@ -2,6 +2,7 @@ package ru.practicum.shareit.user;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.exception.ConflictException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
@@ -11,22 +12,23 @@ import java.util.regex.Pattern;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class UserServiceImpl implements UserService {
     private static final Pattern EMAIL_PATTERN = Pattern.compile("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$");
 
-    private final UserStorage userStorage;
+    private final UserRepository userRepository;
 
     @Override
+    @Transactional
     public UserDto create(UserDto userDto) {
         validateName(userDto.getName());
         validateEmail(userDto.getEmail());
         checkEmailUnique(userDto.getEmail(), null);
-
-        User savedUser = userStorage.create(UserMapper.toUser(userDto));
-        return UserMapper.toUserDto(savedUser);
+        return UserMapper.toUserDto(userRepository.save(UserMapper.toUser(userDto)));
     }
 
     @Override
+    @Transactional
     public UserDto update(long userId, UserDto userDto) {
         User user = getUser(userId);
 
@@ -41,7 +43,7 @@ public class UserServiceImpl implements UserService {
             user.setEmail(userDto.getEmail());
         }
 
-        return UserMapper.toUserDto(userStorage.update(user));
+        return UserMapper.toUserDto(userRepository.save(user));
     }
 
     @Override
@@ -51,24 +53,28 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User getUser(long userId) {
-        return userStorage.findById(userId)
+        return userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("Пользователь с id=" + userId + " не найден"));
     }
 
     @Override
     public List<UserDto> getAll() {
-        return userStorage.findAll().stream()
+        return userRepository.findAll().stream()
                 .map(UserMapper::toUserDto)
                 .toList();
     }
 
     @Override
+    @Transactional
     public void delete(long userId) {
-        userStorage.deleteById(userId);
+        userRepository.deleteById(userId);
     }
 
     private void checkEmailUnique(String email, Long excludedUserId) {
-        if (userStorage.existsByEmail(email, excludedUserId)) {
+        boolean exists = excludedUserId == null
+                ? userRepository.existsByEmailIgnoreCase(email)
+                : userRepository.existsByEmailIgnoreCaseAndIdNot(email, excludedUserId);
+        if (exists) {
             throw new ConflictException("Пользователь с email " + email + " уже существует");
         }
     }
