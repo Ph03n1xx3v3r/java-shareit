@@ -1,6 +1,7 @@
 package ru.practicum.shareit.booking;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dto.BookingDto;
@@ -27,7 +28,7 @@ public class BookingServiceImpl implements BookingService {
     @Transactional
     public BookingDto create(long userId, NewBookingDto dto) {
         User booker = getUser(userId);
-        validateDates(dto);
+        validateDateOrder(dto);
         Item item = itemRepository.findById(dto.getItemId())
                 .orElseThrow(() -> new NotFoundException("Вещь с id=" + dto.getItemId() + " не найдена"));
 
@@ -82,7 +83,7 @@ public class BookingServiceImpl implements BookingService {
     public List<BookingDto> getByBooker(long userId, String state) {
         getUser(userId);
         BookingState bookingState = BookingState.from(state);
-        return filter(bookingRepository.findAllByBookerIdOrderByStartDesc(userId), bookingState).stream()
+        return findBookerBookings(userId, bookingState).stream()
                 .map(BookingMapper::toDto)
                 .toList();
     }
@@ -91,35 +92,40 @@ public class BookingServiceImpl implements BookingService {
     public List<BookingDto> getByOwner(long userId, String state) {
         getUser(userId);
         BookingState bookingState = BookingState.from(state);
-        return filter(bookingRepository.findAllByItemOwnerIdOrderByStartDesc(userId), bookingState).stream()
+        return findOwnerBookings(userId, bookingState).stream()
                 .map(BookingMapper::toDto)
                 .toList();
     }
 
-    private List<Booking> filter(List<Booking> bookings, BookingState state) {
+    private List<Booking> findBookerBookings(long userId, BookingState state) {
         LocalDateTime now = LocalDateTime.now();
-        return bookings.stream()
-                .filter(booking -> switch (state) {
-                    case ALL -> true;
-                    case CURRENT -> !booking.getStart().isAfter(now) && !booking.getEnd().isBefore(now);
-                    case PAST -> booking.getEnd().isBefore(now);
-                    case FUTURE -> booking.getStart().isAfter(now);
-                    case WAITING -> booking.getStatus() == BookingStatus.WAITING;
-                    case REJECTED -> booking.getStatus() == BookingStatus.REJECTED;
-                })
-                .toList();
+        Sort sort = Sort.by(Sort.Direction.DESC, "start");
+        return switch (state) {
+            case ALL -> bookingRepository.findAllByBookerId(userId, sort);
+            case CURRENT -> bookingRepository
+                    .findByBookerIdAndStartLessThanEqualAndEndGreaterThanEqual(userId, now, now, sort);
+            case PAST -> bookingRepository.findByBookerIdAndEndBefore(userId, now, sort);
+            case FUTURE -> bookingRepository.findByBookerIdAndStartAfter(userId, now, sort);
+            case WAITING -> bookingRepository.findByBookerIdAndStatus(userId, BookingStatus.WAITING, sort);
+            case REJECTED -> bookingRepository.findByBookerIdAndStatus(userId, BookingStatus.REJECTED, sort);
+        };
     }
 
-    private void validateDates(NewBookingDto dto) {
+    private List<Booking> findOwnerBookings(long userId, BookingState state) {
         LocalDateTime now = LocalDateTime.now();
-        LocalDateTime tolerance = now.minusSeconds(5);
+        Sort sort = Sort.by(Sort.Direction.DESC, "start");
+        return switch (state) {
+            case ALL -> bookingRepository.findAllByItemOwnerId(userId, sort);
+            case CURRENT -> bookingRepository
+                    .findByItemOwnerIdAndStartLessThanEqualAndEndGreaterThanEqual(userId, now, now, sort);
+            case PAST -> bookingRepository.findByItemOwnerIdAndEndBefore(userId, now, sort);
+            case FUTURE -> bookingRepository.findByItemOwnerIdAndStartAfter(userId, now, sort);
+            case WAITING -> bookingRepository.findByItemOwnerIdAndStatus(userId, BookingStatus.WAITING, sort);
+            case REJECTED -> bookingRepository.findByItemOwnerIdAndStatus(userId, BookingStatus.REJECTED, sort);
+        };
+    }
 
-        if (dto.getStart().isBefore(tolerance)) {
-            throw new ValidationException("Дата начала бронирования должна быть в будущем");
-        }
-        if (dto.getEnd().isBefore(tolerance)) {
-            throw new ValidationException("Дата окончания бронирования должна быть в будущем");
-        }
+    private void validateDateOrder(NewBookingDto dto) {
         if (!dto.getEnd().isAfter(dto.getStart())) {
             throw new ValidationException("Окончание бронирования должно быть позже начала");
         }
