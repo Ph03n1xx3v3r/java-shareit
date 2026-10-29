@@ -12,5 +12,6 @@ public interface ItemRequestRepository extends JpaRepository<ItemRequest, Long> 
 
     // Unpaged variants retained for service-level callers and tests.
     List<ItemRequest> findAllByRequestorIdOrderByCreatedDesc(Long requestorId);
+
     List<ItemRequest> findAllByRequestorIdNotOrderByCreatedDesc(Long requestorId);
 }
