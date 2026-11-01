@@ -38,9 +38,14 @@ public class BaseClient {
         HttpHeaders headers = new HttpHeaders();
         if (incomingHeaders != null) {
             incomingHeaders.forEach((name, values) -> {
-                if (!name.equalsIgnoreCase("host") && !name.equalsIgnoreCase("content-length")
+                if (!name.equalsIgnoreCase("host")
+                        && !name.equalsIgnoreCase("content-length")
                         && !name.equalsIgnoreCase("connection")
-                        && !name.equalsIgnoreCase("transfer-encoding")) {
+                        && !name.equalsIgnoreCase("transfer-encoding")
+                        && !name.equalsIgnoreCase("expect")
+                        && !name.equalsIgnoreCase("upgrade")
+                        && !name.equalsIgnoreCase("te")
+                        && !name.equalsIgnoreCase("trailer")) {
                     headers.put(name, values);
                 }
             });
