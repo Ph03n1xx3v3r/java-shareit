@@ -20,7 +20,7 @@ public class BaseClient {
     private final RestTemplate restTemplate = new RestTemplate();
     private final String serverUrl;
 
-    public BaseClient(@Value("${shareit-server.url:http://localhost:9090}") String serverUrl) {
+    public BaseClient(@Value("${shareit.server.url:http://localhost:9090}") String serverUrl) {
         this.serverUrl = serverUrl;
     }
 
@@ -39,7 +39,8 @@ public class BaseClient {
         if (incomingHeaders != null) {
             incomingHeaders.forEach((name, values) -> {
                 if (!name.equalsIgnoreCase("host") && !name.equalsIgnoreCase("content-length")
-                        && !name.equalsIgnoreCase("connection")) {
+                        && !name.equalsIgnoreCase("connection")
+                        && !name.equalsIgnoreCase("transfer-encoding")) {
                     headers.put(name, values);
                 }
             });
