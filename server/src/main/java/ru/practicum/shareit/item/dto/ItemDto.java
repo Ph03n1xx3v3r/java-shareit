@@ -1,26 +1,25 @@
 package ru.practicum.shareit.item.dto;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import ru.practicum.shareit.booking.dto.BookingShortDto;
+import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.List;
-
+@Component
 @Data
-@Builder
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 public class ItemDto {
-    private Long id;
-    private String name;
-    private String description;
-    private Boolean available;
-    private Long requestId;
-    private BookingShortDto lastBooking;
-    private BookingShortDto nextBooking;
-    @Builder.Default
-    private List<CommentDto> comments = new ArrayList<>();
+    Long id;
+    @NotBlank
+    @Size(max = 200)
+    String name; // краткое название
+    @Size(max = 200)
+    String description; // развёрнутое описание
+    @NotNull
+    Boolean available; // статус о том, доступна или нет вещь для аренды
+    Long requestId;
 }

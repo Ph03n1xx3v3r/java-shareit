@@ -3,24 +3,20 @@ package ru.practicum.shareit.request.dto;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
+@Component
 @Data
-@Builder
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 public class ItemRequestDto {
-    private Long id;
-
-    @NotBlank(message = "Описание запроса не может быть пустым")
-    @Size(max = 1000, message = "Описание запроса не должно превышать 1000 символов")
-    private String description;
-
-    private LocalDateTime created;
-    private List<ItemRequestAnswerDto> items;
+    Long id; // уникальный идентификатор запроса
+    @NotBlank
+    @Size(max = 200)
+    String description; // текст запроса, содержащий описание требуемой вещи
+    LocalDateTime created; // дата и время создания запроса
 }

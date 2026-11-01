@@ -1,46 +1,36 @@
 package ru.practicum.shareit.item.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.NoArgsConstructor;
-import ru.practicum.shareit.user.User;
+import lombok.ToString;
+import ru.practicum.shareit.user.model.User;
 
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "comments")
 @Getter
 @Setter
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
+@ToString
+@Entity
+@Table(name = "comments", schema = "public")
 public class Comment {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(name = "id")
+    Long id;
 
-    @Column(nullable = false)
-    private String text;
+    @Column(name = "text")
+    String text;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "item_id", nullable = false)
-    private Item item;
+    @ManyToOne
+    @JoinColumn(name = "item_id")
+    Item item;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "author_id", nullable = false)
-    private User author;
+    @ManyToOne
+    @JoinColumn(name = "author_id")
+    User user;
 
-    @Column(nullable = false)
-    private LocalDateTime created;
+    @Column(name = "created", nullable = false)
+    LocalDateTime created;
 }

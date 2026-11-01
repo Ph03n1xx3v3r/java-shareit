@@ -1,47 +1,39 @@
 package ru.practicum.shareit.user;
 
-import lombok.RequiredArgsConstructor;
-import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.web.bind.annotation.*;
+import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.service.UserService;
 
-import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping(path = "/users")
-@RequiredArgsConstructor
 public class UserController {
-    private final UserService userService;
+    UserService userService;
+
+    public UserController(@Qualifier("userServiceImpl") UserService userService) {
+        this.userService = userService;
+    }
 
     @PostMapping
-    public UserDto create(@Validated(UserDto.Create.class) @RequestBody UserDto userDto) {
-        return userService.create(userDto);
+    public UserDto create(@RequestBody UserDto userDto) {
+        return userService.createUser(userDto);
     }
 
-    @PatchMapping("/{userId}")
-    public UserDto update(@PathVariable long userId,
-                          @Validated(UserDto.Update.class) @RequestBody UserDto userDto) {
-        return userService.update(userId, userDto);
+    @PatchMapping("/{id}")
+    public UserDto updateUser(@RequestBody Map<String, String> updates,
+                              @PathVariable("id") Long id) {
+        return userService.updateUser(updates, id);
     }
 
-    @GetMapping("/{userId}")
-    public UserDto getById(@PathVariable long userId) {
-        return userService.getById(userId);
+    @DeleteMapping("/{id}")
+    public Map<String, String> delete(@PathVariable Long id) {
+        return userService.deleteUser(id);
     }
 
-    @GetMapping
-    public List<UserDto> getAll() {
-        return userService.getAll();
-    }
-
-    @DeleteMapping("/{userId}")
-    public void delete(@PathVariable long userId) {
-        userService.delete(userId);
+    @GetMapping("/{id}")
+    public UserDto getUser(@PathVariable Long id) {
+        return userService.getUserById(id);
     }
 }

@@ -1,27 +1,49 @@
 package ru.practicum.shareit.exception;
 
+import org.springframework.core.NestedRuntimeException;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice
 public class ErrorHandler {
-    @ExceptionHandler(NotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleNotFound(NotFoundException exception) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(new ErrorResponse(exception.getMessage()));
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleConditionsNotMetException(final ConditionsNotMetException e) {
+        return new ErrorResponse("Ошибка с входным параметром.", e.getMessage());
     }
 
-    @ExceptionHandler(ConflictException.class)
-    public ResponseEntity<ErrorResponse> handleConflict(ConflictException exception) {
-        return ResponseEntity.status(HttpStatus.CONFLICT)
-                .body(new ErrorResponse(exception.getMessage()));
+    @ExceptionHandler
+//    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ErrorResponse handleDuplicatedDataException(final DuplicatedDataException e) {
+        return new ErrorResponse("Ошибка с входным параметром.", e.getMessage());
     }
 
-    @ExceptionHandler(ValidationException.class)
-    public ResponseEntity<ErrorResponse> handleValidation(ValidationException exception) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(new ErrorResponse(exception.getMessage()));
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handleObjectNotFoundException(final ObjectNotFoundException e) {
+        return new ErrorResponse("Объект не найден.", e.getMessage());
     }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleNestedRuntimeException(final NestedRuntimeException e) {
+        return new ErrorResponse("Ошибка с входным параметром.", e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ErrorResponse handleRuntimeException(final RuntimeException e) {
+        return new ErrorResponse("Что-то пошло не так. Обратитесь к системному администратору", e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ErrorResponse handleForbiddenException(final ForbiddenException e) {
+        return new ErrorResponse("Что-то пошло не так. Обратитесь к системному администратору", e.getMessage());
+    }
+
 }

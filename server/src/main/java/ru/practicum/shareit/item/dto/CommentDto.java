@@ -1,19 +1,21 @@
 package ru.practicum.shareit.item.dto;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 
+@Component
 @Data
-@Builder
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 public class CommentDto {
-    private Long id;
-    private String text;
-    private String authorName;
-    private LocalDateTime created;
+    Long id;
+    @NotBlank
+    String text;
+    String authorName;
+    LocalDateTime created;
 }

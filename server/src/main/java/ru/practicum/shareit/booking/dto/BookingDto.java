@@ -1,24 +1,22 @@
 package ru.practicum.shareit.booking.dto;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import ru.practicum.shareit.booking.BookingStatus;
-import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.user.UserDto;
+import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 
+@Component
 @Data
-@Builder
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 public class BookingDto {
-    private Long id;
-    private LocalDateTime start;
-    private LocalDateTime end;
-    private ItemDto item;
-    private UserDto booker;
-    private BookingStatus status;
+    @NotNull
+    private LocalDateTime start; // дата и время начала бронирования
+    @NotNull
+    private LocalDateTime end; // дата и время конца бронирования
+    @NotNull
+    private Long itemId; // вещь, которую пользователь бронирует
 }
