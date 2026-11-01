@@ -4,14 +4,16 @@ ShareIt — сервис для обмена вещами. Репозитори�
 
 ## Архитектура
 
-- `shareIt-gateway` — внешний REST API на порту `8080`. Проверяет базовые входные данные и перенаправляет запросы в сервер.
-- `shareIt-server` — бизнес-логика и доступ к PostgreSQL на порту `9090`.
+- `gateway` — внешний REST API на порту `8080`. Проверяет базовые входные данные и перенаправляет запросы в сервер.
+- `server` — бизнес-логика и доступ к PostgreSQL на порту `9090`.
+
+Структура модулей (`server` и `gateway`) соответствует Docker Compose и CI-проверкам проекта.
 
 ## Требования
 
 - Java 21
 - Maven 3.9+
-- PostgreSQL (для локального запуска сервера)
+- Docker Compose (для запуска всего приложения)
 
 ## Сборка и тесты
 
@@ -21,16 +23,28 @@ ShareIt — сервис для обмена вещами. Репозитори�
 mvn clean verify
 ```
 
-## Запуск
+## Запуск через Docker Compose
+
+Из корневой директории:
+
+```bash
+mvn clean package -DskipTests
+docker compose build
+docker compose up
+```
+
+Gateway будет доступен на `http://localhost:8080`, сервер — на `http://localhost:9090`.
+
+## Локальный запуск без Docker
 
 Сначала запустите PostgreSQL и создайте базу `shareit`, затем в разных терминалах выполните:
 
 ```bash
-mvn -pl shareIt-server spring-boot:run
+mvn -pl server spring-boot:run
 ```
 
 ```bash
-mvn -pl shareIt-gateway spring-boot:run
+mvn -pl gateway spring-boot:run
 ```
 
 Gateway использует `http://localhost:9090` по умолчанию. Адрес можно изменить через `SHAREIT_SERVER_URL`.
