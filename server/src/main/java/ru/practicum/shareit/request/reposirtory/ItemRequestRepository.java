@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface ItemRequestRepository extends JpaRepository<Request, Long> {
 
-    @Query(" select r from Request r where r.user.id <> :userId ")
+    @Query(" select r from Request r where r.user.id <> :userId order by r.created desc ")
     List<Request> getAllRequestWithoutUsersRequest(@Param("userId") Long userId);
 
     @Query(" select r from Request r where r.user.id = :userId " +
