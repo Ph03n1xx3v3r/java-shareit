@@ -23,7 +23,7 @@ import static org.hamcrest.Matchers.equalTo;
         properties = "jdbc.url=jdbc:postgresql://localhost:5432/test",
         webEnvironment = SpringBootTest.WebEnvironment.NONE)
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
-public class ItemServiceImpl {
+public class ItemServiceImplTest {
     private final EntityManager em;
     private final ItemService itemService;
     private final UserService userService;

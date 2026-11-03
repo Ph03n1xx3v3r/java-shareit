@@ -61,7 +61,7 @@ public class BookingClient extends BaseClient {
     private void checkDateTimeItem(BookingDto bookingDto) {
         LocalDateTime now = LocalDateTime.now();
         if (bookingDto.getEnd().isBefore(now) ||
-                bookingDto.getStart().isAfter(bookingDto.getEnd())) {
+                !bookingDto.getStart().isBefore(bookingDto.getEnd())) {
             log.warn("Не корректные даты периода бронирования");
             throw new ConditionsNotMetException("Не корректные даты периода бронирования");
         }

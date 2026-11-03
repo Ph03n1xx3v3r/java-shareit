@@ -78,11 +78,11 @@ public class ItemMapper {
         return itemListDto;
     }
 
-    public static ItemForRequestDto toItemForRequestDto(Item item, Long userid) {
+    public static ItemForRequestDto toItemForRequestDto(Item item) {
         ItemForRequestDto itemForRequestDto = new ItemForRequestDto();
         itemForRequestDto.setId(item.getId());
         itemForRequestDto.setName(item.getName());
-        itemForRequestDto.setOwnerId(userid);
+        itemForRequestDto.setOwnerId(item.getUser().getId());
         return itemForRequestDto;
     }
 }

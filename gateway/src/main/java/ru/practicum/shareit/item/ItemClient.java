@@ -35,7 +35,7 @@ public class ItemClient extends BaseClient {
     }
 
     public ResponseEntity<Object> updateItem(Long userId, Map<String, String> updatesItem, Long itemId) {
-        return patch("/" + userId, userId, updatesItem);
+        return patch("/" + itemId, userId, updatesItem);
     }
 
     public ResponseEntity<Object> getItemById(Long itemId) {
@@ -52,10 +52,8 @@ public class ItemClient extends BaseClient {
                     .header(HttpHeaders.CONTENT_TYPE, String.valueOf(MediaType.APPLICATION_JSON))
                     .body(List.of());
         }
-        return get("/search", userId,
-                Map.of(
-                        "text", text
-                ));
+        return get("/search?text={text}", userId,
+                Map.of("text", text));
     }
 
     public ResponseEntity<Object> addCommentForItem(Long userId, CommentDto commentDto, Long itemId) {

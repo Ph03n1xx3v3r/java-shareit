@@ -81,13 +81,13 @@ public class RequestServiceImpl implements RequestService {
         log.info("Формируем ответ");
         Optional<Request> request = itemRequestRepository.findById(requestId);
         if (request.isEmpty()) {
-            return new RequestWithItemDto();
+            throw new ObjectNotFoundException("Запрос с id " + requestId + " не найден");
         }
 
         List<Item> itemListForRequest = getItemListForRequest(List.of(requestId)); // Получаем список ответов/вещей на запрос
         List<ItemForRequestDto> itemForRequestDtoList =
                 itemListForRequest.stream()
-                        .map((el) -> ItemMapper.toItemForRequestDto(el, request.get().getUser().getId()))
+                        .map((el) -> ItemMapper.toItemForRequestDto(el))
                         .collect(Collectors.toList());
         return ItemRequestMapper.toRequestWithItemDto(itemForRequestDtoList, request.get());
     }
@@ -134,7 +134,7 @@ public class RequestServiceImpl implements RequestService {
     private List<ItemForRequestDto> getItemForRequestDtoList(List<Item> itemList, Long userId) {
         return itemList.stream()
                 .map((el) ->
-                        ItemMapper.toItemForRequestDto(el, userId))
+                        ItemMapper.toItemForRequestDto(el))
                 .collect(Collectors.toList());
     }
 
